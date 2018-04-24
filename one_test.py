@@ -1,4 +1,5 @@
-
+#linux, python3
+#one executable codec, for multi-sequence and multi-QP
 import os
 import sys
 import threading
@@ -11,8 +12,8 @@ import subprocess
 import queue
 
 def get_process_count(imagename):
-    p = os.popen('ps -A | grep TAppEncoder')
-    num = p.read().count('TAppEncoder')
+    p = os.popen('ps -A | grep TAppEncoder') #runable file must be "TAppEncoder*"
+    num = p.read().count('TAppEncoder')      #runable file must be "TAppEncoder*"
     return num
 
 def check_exsit(process_name, queue):
@@ -27,6 +28,7 @@ def run(QP, gc, cmd, exename):
     # wait for process done
     while True:
         t = threading.Timer(300, check_exsit, [exename, q])
+        #              each 300 seconds, check if is done
         t.start()
         t.join() 
         t.cancel()
@@ -36,12 +38,12 @@ def run(QP, gc, cmd, exename):
             break
 
 if __name__ == "__main__":
-    path_base = os.getcwd()
-    runn_path = path_base + "/runable/"
-    apli_name = "TAppEncoderStatic"  # change exe name
-    os.system("killall "+ apli_name)
+    path_base = os.getcwd()             #get current path
+    runn_path = path_base + "/runable/" #executable file path
+    apli_name = "TAppEncoderStatic"     #change exe name
+    os.system("killall "+ apli_name)    #kill process if exist
     apli = runn_path + apli_name 
-    targetFolder = time.strftime('%Y%m%d_%H%M%S', time.localtime(time.time()))
+    targetFolder = time.strftime('%Y%m%d_%H%M%S', time.localtime(time.time())) + "_" + apli_name
     test_path = path_base + "/Result/" + targetFolder
     os.makedirs(test_path, 0o777, True)
     enc_file = path_base + "/cfg/encoder_randomaccess_main.cfg"
@@ -49,13 +51,14 @@ if __name__ == "__main__":
     seq_path = "/media/naor12345/0C5812595812423E/Seq_class/"    
     rec_path = path_base + "/Result/" + targetFolder + "/rec/" 
     log_path = path_base + "/Result/" + targetFolder + "/log/" 
-    os.makedirs(rec_path, 0o777, True)
-    os.makedirs(log_path, 0o777, True)  
-    cmd_path = path_base + "/cmdtxt/atxt.txt" # change cmd here
-    QP_point = [22,27,32,37]
+    os.makedirs(rec_path, 0o777, True)  #path to rec yuv(no use)
+    os.makedirs(log_path, 0o777, True)  #path to log file(result)
+    cmd_path = path_base + "/cmdtxt/atxt.txt" #change command txt
+    QP_point = [22,27,32,37]            #change qp here
     cmdtxt = open(cmd_path, 'r')    
     seq = cmdtxt.readlines()
     
+    #main loop: for each sequence, for each QP
     for line in seq:
         yclass = line.split()[0]
         yuv_name = line.split()[1].split('.')[0]
